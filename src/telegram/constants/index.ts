@@ -53,3 +53,8 @@ export enum ChatMemberStatus {
   ADMINISTRATOR = 'administrator',
   MEMBER = 'member',
 }
+
+export enum FormattingOption {
+  MARKDOWN = 'MarkdownV2',
+  HTML = 'MarkdownV2',
+}

@@ -6,6 +6,7 @@ import { catchError, from, map, reduce, switchMap, throwError } from 'rxjs';
 import { Team } from 'src/team/entities/team.entity';
 import { TelegramUser } from 'src/team/entities/telegarm-user.entity';
 import { Repository } from 'typeorm';
+import { FormattingOption } from '../constants';
 import { TelegramService } from '../telegram.service';
 import { Message } from '../types';
 
@@ -64,6 +65,43 @@ export class CommandConsumer {
             chat_id: message.chat.id,
             reply_to_message_id: message.message_id,
             text: error?.message,
+          });
+        }),
+      )
+      .subscribe({
+        next: (sentMessage) => console.log(sentMessage),
+      });
+  }
+  @Process('list')
+  listTeams(job: Job<Message>) {
+    const message = job.data;
+    from(this.teamRepo.find({ relations: ['users'] }))
+      .pipe(
+        map((teams) => {
+          let text = '';
+          teams.forEach((team) => {
+            text = text.concat(`__*${team.name}*__\n`);
+            team.users.forEach((user) => {
+              text = text.concat(`${user.name}\n`);
+            });
+            text = text.concat('\n');
+          });
+          return text;
+        }),
+        switchMap((text) => {
+          return this.telegramService.sendMessage({
+            chat_id: message.chat.id,
+            reply_to_message_id: message.message_id,
+            text,
+            parse_mode: FormattingOption.MARKDOWN,
+          });
+        }),
+        catchError((error) => {
+          console.log(error);
+          return this.telegramService.sendMessage({
+            chat_id: message.chat.id,
+            reply_to_message_id: message.message_id,
+            text: error.message,
           });
         }),
       )

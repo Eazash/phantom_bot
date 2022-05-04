@@ -1,3 +1,4 @@
+import { FormattingOption } from '../constants';
 import { BotCommand, BotCommandScope } from './objects.interface';
 
 export interface GetUpdatesParams {
@@ -21,6 +22,7 @@ export interface SendMessageParams {
   chat_id: number | string;
   text: string;
   reply_to_message_id?: number;
+  parse_mode?: FormattingOption;
 }
 
 export interface GetChatAdministratorsParams {
