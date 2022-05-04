@@ -15,6 +15,9 @@ export class TelegramUser {
   @ManyToOne(() => Team, (team: Team) => team.users)
   team: Team;
 
+  @Column()
+  chat_id: number;
+
   @ManyToOne(() => Team, (team: Team) => team.betas)
   beta_on_team: Team;
 }

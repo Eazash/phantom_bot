@@ -39,13 +39,14 @@ export class CommandConsumer {
             throw new Error('Invalid Team Name');
           }
           let user = await this.userRepo.findOne({
-            where: { user_id: message.from.id },
+            where: { user_id: message.from.id, chat_id: message.chat.id },
             relations: ['team'],
           });
           if (user === undefined) {
             user = this.userRepo.create({
               user_id: message.from.id,
               name: message.from?.username || message.from.first_name,
+              chat_id: message.chat.id,
             });
           }
           user.team = team;
@@ -85,9 +86,11 @@ export class CommandConsumer {
               `💍Betas: ${team.betas.map((beta) => beta.name).join(' , ')}\n`,
             );
             text = text.concat('Pack: \n');
-            team.users.forEach((user) => {
-              text = text.concat(`${user.name}\n`);
-            });
+            team.users
+              .filter((user) => user.chat_id === message.chat.id)
+              .forEach((user) => {
+                text = text.concat(`${user.name}\n`);
+              });
             text = text.concat('\n');
           });
           return text;
