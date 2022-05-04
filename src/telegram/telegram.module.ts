@@ -59,7 +59,7 @@ export class TelegramModule implements OnModuleInit, OnModuleDestroy {
     @InjectQueue('newMember')
     private readonly newMemberQueue: Queue<Telegram.MyChatMember>,
   ) {
-    this.timeout = this.appService.isInProduction ? 10 : 0;
+    this.timeout = this.appService.isInProduction ? 21600 : 0;
   }
 
   async onModuleInit() {
