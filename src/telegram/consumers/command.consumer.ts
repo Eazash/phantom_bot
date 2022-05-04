@@ -42,14 +42,13 @@ export class CommandConsumer {
             where: { user_id: message.from.id },
             relations: ['team'],
           });
-          if (user !== undefined) {
-            throw new Error(`User already registered to ${user.team.name}`);
+          if (user === undefined) {
+            user = this.userRepo.create({
+              user_id: message.from.id,
+              name: message.from?.username || message.from.first_name,
+            });
           }
-          user = this.userRepo.create({
-            user_id: message.from.id,
-            name: message.from?.username || message.from.first_name,
-            team,
-          });
+          user.team = team;
           return this.userRepo.save(user);
         }),
         switchMap((user) => {
