@@ -14,4 +14,7 @@ export class TelegramUser {
 
   @ManyToOne(() => Team, (team: Team) => team.users)
   team: Team;
+
+  @ManyToOne(() => Team, (team: Team) => team.betas)
+  beta_on_team: Team;
 }

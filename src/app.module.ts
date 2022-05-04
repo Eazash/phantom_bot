@@ -8,7 +8,7 @@ import telegramConfigSchema from './telegram/telegram.config';
 import { TelegramModule } from './telegram/telegram.module';
 import { DatabaseModule } from './database/database.module';
 import { TeamModule } from './team/team.module';
-import databseConfigSchema from './database/database.config';
+import databseConfigSchema from './database/database-schema.config';
 
 @Module({
   imports: [
