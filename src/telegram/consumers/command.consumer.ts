@@ -33,7 +33,7 @@ export class CommandConsumer {
         // concat letters into string
         reduce((acc, val) => acc + val),
         // get team from DB
-        switchMap((name) => from(this.teamRepo.findOne({ name }))),
+        switchMap((name) => from(this.teamRepo.findOne({ short: name }))),
         switchMap(async (team) => {
           if (team === undefined) {
             throw new Error('Invalid Team Name');
@@ -74,12 +74,17 @@ export class CommandConsumer {
   @Process('list')
   listTeams(job: Job<Message>) {
     const message = job.data;
-    from(this.teamRepo.find({ relations: ['users'] }))
+    from(this.teamRepo.find({ relations: ['users', 'alpha', 'betas'] }))
       .pipe(
         map((teams) => {
           let text = '';
           teams.forEach((team) => {
             text = text.concat(`__*${team.name}*__\n`);
+            text = text.concat(`👑Alpha: ${team.alpha.name}\n`);
+            text = text.concat(
+              `💍Betas: ${team.betas.map((beta) => beta.name).join(' , ')}\n`,
+            );
+            text = text.concat('Pack: \n');
             team.users.forEach((user) => {
               text = text.concat(`${user.name}\n`);
             });
