@@ -45,8 +45,8 @@ export class CommandConsumer {
           if (user === undefined) {
             user = this.userRepo.create({
               user_id: message.from.id,
-              name: message.from?.username || message.from.first_name,
-              chat_id: message.chat.id,
+              name: message.from.first_name,
+              username: message.from.username,
             });
           }
           user.team = team;
@@ -89,7 +89,15 @@ export class CommandConsumer {
             team.users
               .filter((user) => user.chat_id === message.chat.id)
               .forEach((user) => {
-                text = text.concat(`${user.name}\n`);
+                if (user.username !== undefined) {
+                  text = text.concat(
+                    `[@${user.username}](tg://user?id=${user.id})\n`,
+                  );
+                } else {
+                  text = text.concat(
+                    `[${user.name}](tg://user?id=${user.id})\n`,
+                  );
+                }
               });
             text = text.concat('\n');
           });

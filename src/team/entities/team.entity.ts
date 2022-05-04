@@ -19,13 +19,17 @@ export class Team {
   @Column({ nullable: true })
   short: string;
 
-  @OneToMany(() => TelegramUser, (user: TelegramUser) => user.team)
+  @OneToMany(() => TelegramUser, (user: TelegramUser) => user.team, {
+    cascade: true,
+  })
   users: TelegramUser[];
 
-  @OneToOne(() => TelegramUser)
+  @OneToOne(() => TelegramUser, { cascade: true })
   @JoinColumn()
   alpha: TelegramUser;
 
-  @OneToMany(() => TelegramUser, (user: TelegramUser) => user.beta_on_team)
+  @OneToMany(() => TelegramUser, (user: TelegramUser) => user.beta_on_team, {
+    cascade: true,
+  })
   betas: TelegramUser[];
 }

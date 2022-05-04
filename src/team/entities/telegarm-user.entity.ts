@@ -12,12 +12,15 @@ export class TelegramUser {
   @Column()
   name: string;
 
-  @ManyToOne(() => Team, (team: Team) => team.users)
+  @Column()
+  username?: string;
+
+  @ManyToOne(() => Team, (team: Team) => team.users, { onDelete: 'CASCADE' })
   team: Team;
 
   @Column({ nullable: true })
   chat_id?: number;
 
-  @ManyToOne(() => Team, (team: Team) => team.betas)
+  @ManyToOne(() => Team, (team: Team) => team.betas, { onDelete: 'CASCADE' })
   beta_on_team: Team;
 }
