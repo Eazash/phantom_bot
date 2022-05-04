@@ -9,6 +9,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { DatabaseModule } from './database/database.module';
 import { TeamModule } from './team/team.module';
 import databseConfigSchema from './database/database-schema.config';
+import { QueueOptions } from 'bull';
 
 @Module({
   imports: [
@@ -22,10 +23,11 @@ import databseConfigSchema from './database/database-schema.config';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService): QueueOptions => ({
         redis: {
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
         },
       }),
     }),
