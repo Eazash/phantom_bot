@@ -30,17 +30,19 @@ import {
   MessageEntityType,
 } from './constants';
 import { CommandConsumer } from './consumers/command.consumer';
+import { NewMemberConsumer } from './consumers/new-member.consumer';
 import { TelegramService } from './telegram.service';
 import * as Telegram from './types';
-import { Message, MessageEntity, Update } from './types';
+import { Message, MessageEntity, MyChatMember, Update } from './types';
 
 @Module({
-  providers: [TelegramService, CommandConsumer],
+  providers: [TelegramService, CommandConsumer, NewMemberConsumer],
   imports: [
     HttpModule,
     ConfigModule,
     forwardRef(() => AppModule),
     BullModule.registerQueue({ name: 'command' }),
+    BullModule.registerQueue({ name: 'newMember' }),
     TypeOrmModule.forFeature([Team, TelegramUser]),
   ],
 })
@@ -54,6 +56,8 @@ export class TelegramModule implements OnModuleInit, OnModuleDestroy {
     private readonly appService: AppService,
     @InjectQueue('command')
     private readonly commandQueue: Queue<Telegram.Message>,
+    @InjectQueue('newMember')
+    private readonly newMemberQueue: Queue<Telegram.MyChatMember>,
   ) {
     this.timeout = this.appService.isInProduction ? 10 : 0;
   }
@@ -107,8 +111,13 @@ export class TelegramModule implements OnModuleInit, OnModuleDestroy {
         ))
       ) {
         this.commandProducer(update.message, entity);
+      } else if (update?.my_chat_member?.new_chat_member) {
+        this.newMemberProducer(update.my_chat_member);
       }
     });
+  }
+  newMemberProducer(my_chat_member: MyChatMember) {
+    this.newMemberQueue.add(my_chat_member);
   }
 
   commandProducer(message: Message, commandEntity: MessageEntity) {

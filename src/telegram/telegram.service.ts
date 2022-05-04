@@ -49,6 +49,10 @@ export class TelegramService {
     return this.callAPI<Telegram.Update[]>(this.getUpdates.name, options);
   }
 
+  getMe(): Observable<Telegram.User> {
+    return this.callAPI<Telegram.User>(this.getMe.name);
+  }
+
   setMyCommands(options: SetMyCommandsParams): Observable<unknown> {
     return this.callAPI(this.setMyCommands.name, options);
   }

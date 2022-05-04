@@ -43,14 +43,22 @@ export interface Message {
   chat: Chat;
   text?: string;
   from?: User;
+  new_chat_members?: User[];
 }
 
 export interface Update {
   update_id: number;
   message?: Message;
+  my_chat_member: MyChatMember;
 }
 
 export interface ChatMember {
   status: ChatMemberStatus;
   user: User;
+}
+
+export interface MyChatMember {
+  chat: Chat;
+  new_chat_member: ChatMember;
+  old_chat_member: ChatMember;
 }
