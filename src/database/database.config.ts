@@ -10,5 +10,13 @@ export const DatabaseConfig: TypeOrmModuleOptions = {
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   migrationsRun: true,
   cli: { migrationsDir: 'src/database/migrations' },
+  extra:
+    process.env.NODE_ENV === 'production'
+      ? {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        }
+      : undefined,
 };
 export default DatabaseConfig;
