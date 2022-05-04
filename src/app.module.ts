@@ -6,6 +6,9 @@ import appConfigSchema from './app.config';
 import { AppService } from './app.service';
 import telegramConfigSchema from './telegram/telegram.config';
 import { TelegramModule } from './telegram/telegram.module';
+import { DatabaseModule } from './database/database.module';
+import { TeamModule } from './team/team.module';
+import databseConfigSchema from './database/database.config';
 
 @Module({
   imports: [
@@ -13,6 +16,7 @@ import { TelegramModule } from './telegram/telegram.module';
       validationSchema: Joi.object({
         ...appConfigSchema,
         ...telegramConfigSchema,
+        ...databseConfigSchema,
       }),
     }),
     BullModule.forRootAsync({
@@ -26,6 +30,8 @@ import { TelegramModule } from './telegram/telegram.module';
       }),
     }),
     TelegramModule,
+    DatabaseModule,
+    TeamModule,
   ],
   providers: [AppService],
   exports: [AppService],

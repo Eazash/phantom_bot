@@ -4,6 +4,15 @@ import { ConfigService } from '@nestjs/config';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { map, Observable } from 'rxjs';
 import * as Telegram from './types';
+import {
+  ChatMember,
+  GetChatAdministratorsParams,
+  GetChatMemberParams,
+  Message,
+  SendMessageParams,
+  SetMyCommandsParams,
+  User,
+} from './types';
 
 @Injectable()
 export class TelegramService {
@@ -38,5 +47,23 @@ export class TelegramService {
     options?: Telegram.GetUpdatesParams,
   ): Observable<Telegram.Update[]> {
     return this.callAPI<Telegram.Update[]>(this.getUpdates.name, options);
+  }
+
+  setMyCommands(options: SetMyCommandsParams): Observable<unknown> {
+    return this.callAPI(this.setMyCommands.name, options);
+  }
+
+  getChatMember(options: GetChatMemberParams): Observable<ChatMember> {
+    return this.callAPI(this.getChatMember.name, options);
+  }
+
+  sendMessage(options: SendMessageParams) {
+    return this.callAPI<Message>(this.sendMessage.name, options);
+  }
+
+  getChatAdministrators(
+    options: GetChatAdministratorsParams,
+  ): Observable<Telegram.ChatMember[]> {
+    return this.callAPI<ChatMember[]>(this.getChatAdministrators.name, options);
   }
 }

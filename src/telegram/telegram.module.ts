@@ -1,4 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
+import { BullModule, InjectQueue } from '@nestjs/bull';
 import {
   forwardRef,
   Module,
@@ -6,15 +7,42 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AxiosError } from 'axios';
-import { of, repeat, retry, Subscription, switchMap, tap } from 'rxjs';
+import { Queue } from 'bull';
+import {
+  firstValueFrom,
+  of,
+  repeat,
+  retry,
+  Subscription,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { AppModule } from 'src/app.module';
 import { AppService } from 'src/app.service';
+import { Team } from 'src/team/entities/team.entity';
+import { TelegramUser } from 'src/team/entities/telegarm-user.entity';
+import {
+  BotCommandScopeType,
+  Command,
+  DEFAULT_COMMANDS,
+  MessageEntityType,
+} from './constants';
+import { CommandConsumer } from './consumers/command.consumer';
 import { TelegramService } from './telegram.service';
+import * as Telegram from './types';
+import { Message, MessageEntity, Update } from './types';
 
 @Module({
-  providers: [TelegramService],
-  imports: [HttpModule, ConfigModule, forwardRef(() => AppModule)],
+  providers: [TelegramService, CommandConsumer],
+  imports: [
+    HttpModule,
+    ConfigModule,
+    forwardRef(() => AppModule),
+    BullModule.registerQueue({ name: 'command' }),
+    TypeOrmModule.forFeature([Team, TelegramUser]),
+  ],
 })
 export class TelegramModule implements OnModuleInit, OnModuleDestroy {
   private offset: number;
@@ -24,11 +52,19 @@ export class TelegramModule implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly telegramService: TelegramService,
     private readonly appService: AppService,
+    @InjectQueue('command')
+    private readonly commandQueue: Queue<Telegram.Message>,
   ) {
     this.timeout = this.appService.isInProduction ? 10 : 0;
   }
 
-  onModuleInit() {
+  async onModuleInit() {
+    await firstValueFrom(
+      this.telegramService.setMyCommands({
+        commands: DEFAULT_COMMANDS,
+        scope: { type: BotCommandScopeType.DEFAULT },
+      }),
+    );
     this.update$ = of({})
       .pipe(
         switchMap(() =>
@@ -43,11 +79,11 @@ export class TelegramModule implements OnModuleInit, OnModuleDestroy {
           (updates) =>
             (this.offset = updates.length
               ? updates.at(-1).update_id + 1
-              : undefined),
+              : this.offset),
         ),
       )
       .subscribe({
-        next: (update) => console.log(update),
+        next: (update) => this.produceJobs(update),
         error: (error) => {
           if (error?.isAxiosError) {
             const axiosError = error as AxiosError;
@@ -60,5 +96,34 @@ export class TelegramModule implements OnModuleInit, OnModuleDestroy {
   }
   onModuleDestroy() {
     this.update$.unsubscribe();
+  }
+
+  produceJobs(updates: Update[]) {
+    updates.forEach((update) => {
+      let entity: MessageEntity;
+      if (
+        (entity = update.message?.entities?.find(
+          (entity) => entity.type === MessageEntityType.COMMAND,
+        ))
+      ) {
+        this.commandProducer(update.message, entity);
+      }
+    });
+  }
+
+  commandProducer(message: Message, commandEntity: MessageEntity) {
+    const command = message.text
+      .substring(commandEntity.offset, commandEntity.length)
+      .split('@')[0];
+    switch (command) {
+      case Command.REGISTER:
+        this.commandQueue.add('register', message);
+        break;
+      case Command.LIST:
+        this.commandQueue.add('list', message);
+      default:
+        this.commandQueue.add('unknown', message);
+        break;
+    }
   }
 }
