@@ -17,6 +17,7 @@ specifiers:
   '@types/supertest': ^2.0.11
   '@typescript-eslint/eslint-plugin': ^5.0.0
   '@typescript-eslint/parser': ^5.0.0
+  axios: ^0.26.0
   bull: ^4.8.2
   eslint: ^8.0.1
   eslint-config-prettier: ^8.3.0
@@ -43,6 +44,7 @@ dependencies:
   '@nestjs/config': 2.0.0_ozyn6uy6pikqhtn6hfkzt5a5w4
   '@nestjs/core': 8.4.4_wy6cne2gpevj2v6pvodnemcq2i
   '@nestjs/platform-express': 8.4.4_u6bxr3c7htwmhq2t5wi3k6ht4y
+  axios: 0.26.1
   bull: 4.8.2
   joi: 17.6.0
   reflect-metadata: 0.1.13
