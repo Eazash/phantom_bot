@@ -2,32 +2,32 @@ import { TelegramUser } from 'src/team/entities/telegarm-user.entity';
 
 export const NIGHT_ALPHA_SEED: Partial<TelegramUser> = {
   user_id: 400589207,
-  name: 'ytkMiyunus',
+  name: 'ytk',
 };
 
 export const MOON_ALPHA_SEED: Partial<TelegramUser> = {
   user_id: 516144161,
-  name: 'Mrsphalange',
+  name: 'Hinde',
 };
 
 export const NIGHT_BETA_SEED: Partial<TelegramUser>[] = [
   {
     user_id: 360982224,
-    name: 'Eternal_y0uth',
+    name: 'Lidu🦋',
   },
   {
     user_id: 1261778973,
-    name: 'Nanimo_21',
+    name: 'Nani💞',
   },
 ];
 
 export const MOON_BETA_SEED: Partial<TelegramUser>[] = [
   {
     user_id: 1801238878,
-    name: 'lazysoraa',
+    name: 'Rin ♡',
   },
   {
     user_id: 345238421,
-    name: 'EyobJerry',
+    name: 'Born2pizza',
   },
 ];
